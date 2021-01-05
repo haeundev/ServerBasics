@@ -1,0 +1,6 @@
+C:\Users\Oh Ha Eun\Documents\Documents\ServerBasics\Server\ServerCore\bin\Debug\ServerCore.exe
+C:\Users\Oh Ha Eun\Documents\Documents\ServerBasics\Server\ServerCore\bin\Debug\ServerCore.pdb
+C:\Users\Oh Ha Eun\Documents\Documents\ServerBasics\Server\ServerCore\obj\Debug\ServerCore.csprojAssemblyReference.cache
+C:\Users\Oh Ha Eun\Documents\Documents\ServerBasics\Server\ServerCore\obj\Debug\ServerCore.csproj.CoreCompileInputs.cache
+C:\Users\Oh Ha Eun\Documents\Documents\ServerBasics\Server\ServerCore\obj\Debug\ServerCore.exe
+C:\Users\Oh Ha Eun\Documents\Documents\ServerBasics\Server\ServerCore\obj\Debug\ServerCore.pdb

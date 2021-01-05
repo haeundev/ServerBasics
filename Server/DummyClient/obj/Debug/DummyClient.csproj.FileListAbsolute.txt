@@ -1,0 +1,6 @@
+C:\Users\Oh Ha Eun\Documents\Documents\ServerBasics\Server\DummyClient\bin\Debug\DummyClient.exe
+C:\Users\Oh Ha Eun\Documents\Documents\ServerBasics\Server\DummyClient\bin\Debug\DummyClient.pdb
+C:\Users\Oh Ha Eun\Documents\Documents\ServerBasics\Server\DummyClient\obj\Debug\DummyClient.csprojAssemblyReference.cache
+C:\Users\Oh Ha Eun\Documents\Documents\ServerBasics\Server\DummyClient\obj\Debug\DummyClient.csproj.CoreCompileInputs.cache
+C:\Users\Oh Ha Eun\Documents\Documents\ServerBasics\Server\DummyClient\obj\Debug\DummyClient.exe
+C:\Users\Oh Ha Eun\Documents\Documents\ServerBasics\Server\DummyClient\obj\Debug\DummyClient.pdb
