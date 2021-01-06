@@ -6,6 +6,56 @@ namespace ServerCore
 {
     class Program
     {
+
+        static void Main(string[] args)
+        {
+            int [,] arr = new int[10000, 10000];
+
+            /*
+             캐시 철학 중 "Spatial Locality"
+             배열에 공간적으로 가까이 있는 애들은 캐시에 어느 정도 저장이 되는데,
+             따라서 가까이 있는 애들은 접근을 빨리 할 수 있다. (캐시 히트 상태)
+             
+             [][][][][]
+             [][][][][]
+             [][][][][]
+             [][][][][]
+             [][][][][]
+             
+             이차배열을 나타낸 그림 --> 여기서 우측으로 진행되면 접근이 빠르고, 세로로 진행되면 더 느리다. 
+             
+            */
+            {
+                long now = DateTime.Now.Ticks;
+                for (int y = 0; y < 10000; y++)
+                {
+                    for (int x = 0; x < 10000; x++)
+                    {
+                        arr[y, x] = 1;
+                    }
+                }
+                long end = DateTime.Now.Ticks;
+                Console.WriteLine($"(y, x) 순서로 걸린 시간 {end - now}");
+            }
+            {
+                long now = DateTime.Now.Ticks;
+                for (int y = 0; y < 10000; y++)
+                {
+                    for (int x = 0; x < 10000; x++)
+                    {
+                        arr[x, y] = 1;
+                    }
+                }
+                long end = DateTime.Now.Ticks;
+                Console.WriteLine($"(x, y) 순서로 걸린 시간 {end - now}");
+            }
+        }
+        
+        
+        
+        
+        #region 컴파일러 최적화의 문제
+/*
         // 쓰레드들은 각자 스택 메모리를 할당받아 사용하는데, 전역변수들은 모든 쓰레드가 공통으로 사용 가능.
         // ==> 그런데, 이게 괜찮을까?
         static volatile bool _stop = false; 
@@ -35,9 +85,9 @@ namespace ServerCore
             t.Wait(); // Thread.Join 같은 기능. Task가 끝날 때까지 기다림.
             Console.WriteLine("종료 성공");
         }
-
-
-
+*/
+        #endregion
+        
 
         #region 쓰레드 연습 
         /*
