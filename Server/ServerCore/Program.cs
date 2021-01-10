@@ -4,50 +4,70 @@ using System.Threading.Tasks;
 
 namespace ServerCore
 {
+    class SpinLock
+    {
+        private volatile bool _locked1 = false;
+        private volatile int _locked2 = 0;
+        
+        public void Acquire()
+        {
+            // 시도 1.
+                while (_locked1)
+                {
+                    // 잠김이 풀릴 때까지 기다리겠다.
+                }
+            
+                // 내꺼!
+                _locked1 = true;
+
+                // ==> 시도 1 실패. 왜? (1) 들어와서 (2) 문을 잠그는 것이 두 개에 나눠서 실행되니까!
+
+            // 시도 2.
+                while (_locked1)
+                {
+                    int original = Interlocked.Exchange(ref _locked2, 1);
+                    // _locked2에 1을 넣는데, 만약 original 도 1이라면 다른 누군가가 이미 점유하고 있다는 뜻.
+                    if (original == 0)
+                        break;
+                }
+
+            // 시도 3.
+                // CAS: Compare-And-Swap 형식의 메서드
+                while (_locked1)
+                {
+                    int original2 = Interlocked.CompareExchange(ref _locked2, 1, 0);
+                    if (original2 == 0)
+                        break;
+                    
+                    // 이걸 좀 더 똑똑하게 짜면,
+                    int expected = 0;
+                    int desired = 1;
+                    if (Interlocked.CompareExchange(ref _locked2, desired, expected) == expected)
+                        break;
+                }
+        }
+
+        public void Release() // 이미 문을 잠그고 들어왔기 때문에, 문을 다시 열어주는 건 설렁설렁 해도 됨~
+        {
+            _locked1 = false;
+            
+            //
+            _locked2 = 0;
+        }
+    }
+    
     class Program
     {
-        #region 상호 배제(Mutual Exclusive)와 락(lock)
+        private static int _num = 0;
+        private static SpinLock _lock = new SpinLock();
 
-        private static int _number = 0;
-        private static object _obj = new object();
-        
         static void Thread_1()
         {
             for (int i = 0; i < 100000; i++)
             {
-                /* 상호 배제. Mutual Exclusive  (C++의 std::mutex) */
-                Monitor.Enter(_obj); // 문을 잠그는 역할. 다른 애들이 여기에 접근할 수 없게.
-                _number++;
-                Monitor.Exit(_obj);
-                // ==> 이 블럭이 싱글 쓰레드라고 가정하고 사용할 수 있어서 편하기도 하지만,
-                //     문을 닫았다 열었다 하는 게 너무 복잡해질 수도 있고, 더 심각하게는
-                //     문을 다시 열어주지 않고 뭔가 리턴하거나 한다면... 다른 애들이 무한대로 대기하는 문제 발생.
-                //        ==> 이 상황을 데드 락 "Dead Lock"이라고 한다.
-            }
-            
-            // 한 가지 해결 방법은 try finally 를 사용하는 것.
-            for (int i = 0; i < 100000; i++)
-            {
-                try
-                {
-                    Monitor.Enter(_obj);
-                    _number++;
-                    return;
-                }
-                finally
-                {
-                    Monitor.Exit(_obj); // 이 부분은 try 의 성공 여부와 상관없이 무조건 한 번은 실행되니까.
-                }
-            }
-            
-            // 그러나 이것도 번거로움~  대부분의 경우 lock을 사용한다.
-            // lock 도 내부적으로는 Monitor.Enter/Exit 으로 구현되어 있지만, 사용이 좀 더 편리함.
-            for (int i = 0; i < 100000; i++)
-            {
-                lock (_obj)
-                {
-                    _number++;
-                }
+                _lock.Acquire();
+                _num++;
+                _lock.Release();
             }
         }
         
@@ -55,28 +75,94 @@ namespace ServerCore
         {
             for (int i = 0; i < 100000; i++)
             {
-                Monitor.Enter(_obj);
-                _number--;
-                Monitor.Exit(_obj);
+                _lock.Acquire();
+                _num--;
+                _lock.Release();
             }
         }
-        
+
         static void Main(string[] args)
         {
             Task t1 = new Task(Thread_1);
             Task t2 = new Task(Thread_2);
             t1.Start();
             t2.Start();
-        
+
             Task.WaitAll(t1, t2);
-            
-            Console.WriteLine(_number);
+
+            Console.WriteLine(_num);
         }
-
+        
+        
+        
+        #region 상호 배제(Mutual Exclusive)와 락(lock)
+        //
+        // private static int _number = 0;
+        // private static object _obj = new object();
+        //
+        // static void Thread_1()
+        // {
+        //     for (int i = 0; i < 100000; i++)
+        //     {
+        //         /* 상호 배제. Mutual Exclusive  (C++의 std::mutex) */
+        //         Monitor.Enter(_obj); // 문을 잠그는 역할. 다른 애들이 여기에 접근할 수 없게.
+        //         _number++;
+        //         Monitor.Exit(_obj);
+        //         // ==> 이 블럭이 싱글 쓰레드라고 가정하고 사용할 수 있어서 편하기도 하지만,
+        //         //     문을 닫았다 열었다 하는 게 너무 복잡해질 수도 있고, 더 심각하게는
+        //         //     문을 다시 열어주지 않고 뭔가 리턴하거나 한다면... 다른 애들이 무한대로 대기하는 문제 발생.
+        //         //        ==> 이 상황을 데드 락 "Dead Lock"이라고 한다.
+        //     }
+        //     
+        //     // 한 가지 해결 방법은 try finally 를 사용하는 것.
+        //     for (int i = 0; i < 100000; i++)
+        //     {
+        //         try
+        //         {
+        //             Monitor.Enter(_obj);
+        //             _number++;
+        //             return;
+        //         }
+        //         finally
+        //         {
+        //             Monitor.Exit(_obj); // 이 부분은 try 의 성공 여부와 상관없이 무조건 한 번은 실행되니까.
+        //         }
+        //     }
+        //     
+        //     // 그러나 이것도 번거로움~  대부분의 경우 lock을 사용한다.
+        //     // lock 도 내부적으로는 Monitor.Enter/Exit 으로 구현되어 있지만, 사용이 좀 더 편리함.
+        //     for (int i = 0; i < 100000; i++)
+        //     {
+        //         lock (_obj)
+        //         {
+        //             _number++;
+        //         }
+        //     }
+        // }
+        //
+        // static void Thread_2()
+        // {
+        //     for (int i = 0; i < 100000; i++)
+        //     {
+        //         Monitor.Enter(_obj);
+        //         _number--;
+        //         Monitor.Exit(_obj);
+        //     }
+        // }
+        //
+        // static void Main(string[] args)
+        // {
+        //     Task t1 = new Task(Thread_1);
+        //     Task t2 = new Task(Thread_2);
+        //     t1.Start();
+        //     t2.Start();
+        //
+        //     Task.WaitAll(t1, t2);
+        //     
+        //     Console.WriteLine(_number);
+        // }
+        //
         #endregion
-
-
-
         
         
         #region 경합 조건. Race Condition
