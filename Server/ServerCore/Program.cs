@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace ServerCore
 {
-    class SpinLock
+    class SpinLock  /* "화장실에 사람이 나올 때까지 기다리자! */
     {
         private volatile bool _locked1 = false;
         private volatile int _locked2 = 0;
