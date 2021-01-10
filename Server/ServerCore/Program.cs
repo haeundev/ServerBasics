@@ -4,6 +4,45 @@ using System.Threading.Tasks;
 
 namespace ServerCore
 {
+    class Lock_AutoResetEvent
+    {
+        private AutoResetEvent _available = new AutoResetEvent(true);
+        // --> 이 available 변수는 커널 안에서는 boolean 값 하나다.
+        
+        /// <summary>
+        /// Spin Lock은 유저 모드에서 실행하면 되는데,
+        /// AutoResetEvent나 ManualResetEvent나, 커널 모드를 사용하게 되면 그 하나를 사용하는 자체로도 부담이 된다.
+        /// </summary>
+
+        public void Acquire()
+        {
+            _available.WaitOne(); // 입장 시도. 처음에 true 했으니까 열려있을 것. 입장 후 문을 자동으로 닫음.
+            // 참고로, 문을 닫는 것도 별도 함수로 있음.  _available.Reset(); 커널의 boolean을 false로.
+        }
+
+        public void Release()
+        {
+            _available.Set(); // 다시 커널의 boolean을 true로.
+        }
+    }   
+    
+    class Lock_ManualResetEvent
+    {
+        private ManualResetEvent _available = new ManualResetEvent(true);
+
+        public void Acquire()
+        {
+            _available.WaitOne(); // 입장 시도. 처음에 true 했으니까 열려있을 것. 그러나 문을 자동으로 닫지는 않음.
+            _available.Reset();
+            // 이 두 개를 묶어서 원자적으로 실행하지 않으면 틀린 결과가 나올 것.
+        }
+
+        public void Release()
+        {
+            _available.Set();
+        }
+    }
+
     class SpinLock  /* "화장실에 사람이 나올 때까지 기다리자! */
     {
         private volatile bool _locked1 = false;
@@ -68,15 +107,15 @@ namespace ServerCore
     class Program
     {
         private static int _num = 0;
-        private static SpinLock _lock = new SpinLock();
+        private static SpinLock _spinLock = new SpinLock();
 
         static void Thread_1()
         {
             for (int i = 0; i < 100000; i++)
             {
-                _lock.Acquire();
+                _spinLock.Acquire();
                 _num++;
-                _lock.Release();
+                _spinLock.Release();
             }
         }
         
@@ -84,9 +123,9 @@ namespace ServerCore
         {
             for (int i = 0; i < 100000; i++)
             {
-                _lock.Acquire();
+                _spinLock.Acquire();
                 _num--;
-                _lock.Release();
+                _spinLock.Release();
             }
         }
 
