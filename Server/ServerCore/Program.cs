@@ -6,7 +6,77 @@ namespace ServerCore
 {
     class Program
     {
+        #region 상호 배제(Mutual Exclusive)와 락(lock)
+
+        private static int _number = 0;
+        private static object _obj = new object();
         
+        static void Thread_1()
+        {
+            for (int i = 0; i < 100000; i++)
+            {
+                /* 상호 배제. Mutual Exclusive  (C++의 std::mutex) */
+                Monitor.Enter(_obj); // 문을 잠그는 역할. 다른 애들이 여기에 접근할 수 없게.
+                _number++;
+                Monitor.Exit(_obj);
+                // ==> 이 블럭이 싱글 쓰레드라고 가정하고 사용할 수 있어서 편하기도 하지만,
+                //     문을 닫았다 열었다 하는 게 너무 복잡해질 수도 있고, 더 심각하게는
+                //     문을 다시 열어주지 않고 뭔가 리턴하거나 한다면... 다른 애들이 무한대로 대기하는 문제 발생.
+                //        ==> 이 상황을 데드 락 "Dead Lock"이라고 한다.
+            }
+            
+            // 한 가지 해결 방법은 try finally 를 사용하는 것.
+            for (int i = 0; i < 100000; i++)
+            {
+                try
+                {
+                    Monitor.Enter(_obj);
+                    _number++;
+                    return;
+                }
+                finally
+                {
+                    Monitor.Exit(_obj); // 이 부분은 try 의 성공 여부와 상관없이 무조건 한 번은 실행되니까.
+                }
+            }
+            
+            // 그러나 이것도 번거로움~  대부분의 경우 lock을 사용한다.
+            // lock 도 내부적으로는 Monitor.Enter/Exit 으로 구현되어 있지만, 사용이 좀 더 편리함.
+            for (int i = 0; i < 100000; i++)
+            {
+                lock (_obj)
+                {
+                    _number++;
+                }
+            }
+        }
+        
+        static void Thread_2()
+        {
+            for (int i = 0; i < 100000; i++)
+            {
+                Monitor.Enter(_obj);
+                _number--;
+                Monitor.Exit(_obj);
+            }
+        }
+        
+        static void Main(string[] args)
+        {
+            Task t1 = new Task(Thread_1);
+            Task t2 = new Task(Thread_2);
+            t1.Start();
+            t2.Start();
+        
+            Task.WaitAll(t1, t2);
+            
+            Console.WriteLine(_number);
+        }
+
+        #endregion
+
+
+
         
         
         #region 경합 조건. Race Condition
