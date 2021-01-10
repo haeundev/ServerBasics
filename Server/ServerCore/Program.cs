@@ -44,6 +44,15 @@ namespace ServerCore
                     int desired = 1;
                     if (Interlocked.CompareExchange(ref _locked2, desired, expected) == expected)
                         break;
+                    
+                    
+                    /*  Context Switching   "나 일단 자리로 갈게!"  */
+                    // "쉬다 올게..." ==> 3개 중 아무 거나 쓰면 됨.
+                    Thread.Sleep(1); // 무조건 휴식 --> 1ms 정도 쉬고 싶어요. ==> 실제 몇 밀리seconds를 쉴 지는 스케줄러가 정함.
+                    Thread.Sleep(0); // 조건부 양보 --> 나보다 우선순위가 낮은 애들한테는 양보 불가. 그런 경우엔 다시 나에게.
+                    Thread.Yield(); // 관대한 양보 --> 지금 실행 가능한 쓰레드가 있으면 실행해라. 실행 가능한 애가 없다면 나에게.
+                    // ==> 근데 이렇게 하는 게 레지스터... 뭐랑 엮여서 운영체제가 다시 뭘 할당해주고 그런 과정이 커널 모드에 있어서,
+                    //     차라리 유저 모드에서 spin lock 해놓는 상황이 더 좋을 수도 있다.
                 }
         }
 
