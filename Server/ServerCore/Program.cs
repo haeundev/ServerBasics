@@ -43,7 +43,7 @@ namespace ServerCore
         }
     }
 
-    class SpinLock  /* "화장실에 사람이 나올 때까지 기다리자! */
+    class MySpinLock  /* "화장실에 사람이 나올 때까지 기다리자! */
     {
         private volatile bool _locked1 = false;
         private volatile int _locked2 = 0;
@@ -106,44 +106,104 @@ namespace ServerCore
     
     class Program
     {
-        private static int _num = 0;
-        private static SpinLock _spinLock = new SpinLock();
 
-        static void Thread_1()
-        {
-            for (int i = 0; i < 100000; i++)
-            {
-                _spinLock.Acquire();
-                _num++;
-                _spinLock.Release();
-            }
-        }
         
-        static void Thread_2()
-        {
-            for (int i = 0; i < 100000; i++)
-            {
-                _spinLock.Acquire();
-                _num--;
-                _spinLock.Release();
-            }
-        }
 
-        static void Main(string[] args)
-        {
-            Task t1 = new Task(Thread_1);
-            Task t2 = new Task(Thread_2);
-            t1.Start();
-            t2.Start();
+        #region ReaderWriterLock
 
-            Task.WaitAll(t1, t2);
+        // private static object _lock = new object();
+        // private static SpinLock _lock2 = new SpinLock();
+        //
+        // static void Main(string[] args)
+        // {
+        //     // 버전 1
+        //     lock (_lock)
+        //     {
+        //         
+        //     }
+        //
+        //     // 버전 2
+        //     bool lockTaken = false;
+        //     try
+        //     {
+        //         _lock2.Enter(ref lockTaken);
+        //     }
+        //     finally
+        //     {
+        //         if (lockTaken)
+        //             _lock2.Exit();
+        //     }
+        // }
+        //
+        // // 원래는 위의 버전 두 개 중에 쓰면 된다. 그런데 가끔은 너무 적은 빈도로 일어나는 쓰기 때문에 락을 사용해야 하는 경우가 있다.
+        // // 이런 경우에 사용할 수 있는 것이 RWLock.
+        //
+        // class Reward
+        // {
+        //     
+        // }
+        //
+        // private static ReaderWriterLockSlim _lock3 = new ReaderWriterLockSlim();
+        //
+        // static Reward GetRewardById(int id) // 평소에 읽기만 할 때는 동시다발적으로 접근하다가,
+        // {
+        //     _lock3.EnterReadLock();
+        //     _lock3.ExitReadLock();
+        //     
+        //     return null;
+        // }
+        //
+        // static void AddReward(Reward reward) // 아주 가끔 보상을 추가할 때, write할 때는 제대로 잠금.
+        // {
+        //     _lock3.EnterWriteLock();
+        //     _lock3.ExitWriteLock();
+        // }
 
-            Console.WriteLine(_num);
-        }
+        #endregion
+
         
-        
-        
+        #region SpinLock
+
+        // private static int _num = 0;
+        // private static SpinLock _spinLock = new SpinLock();
+        //
+        // static void Thread_1()
+        // {
+        //     for (int i = 0; i < 100000; i++)
+        //     {
+        //         _spinLock.Acquire();
+        //         _num++;
+        //         _spinLock.Release();
+        //     }
+        // }
+        //
+        // static void Thread_2()
+        // {
+        //     for (int i = 0; i < 100000; i++)
+        //     {
+        //         _spinLock.Acquire();
+        //         _num--;
+        //         _spinLock.Release();
+        //     }
+        // }
+        //
+        // static void Main(string[] args)
+        // {
+        //     Task t1 = new Task(Thread_1);
+        //     Task t2 = new Task(Thread_2);
+        //     t1.Start();
+        //     t2.Start();
+        //
+        //     Task.WaitAll(t1, t2);
+        //
+        //     Console.WriteLine(_num);
+        // }
+
+        #endregion
+
+
         #region 상호 배제(Mutual Exclusive)와 락(lock)
+
         //
         // private static int _number = 0;
         // private static object _obj = new object();
@@ -210,9 +270,10 @@ namespace ServerCore
         //     Console.WriteLine(_number);
         // }
         //
+
         #endregion
-        
-        
+
+
         #region 경합 조건. Race Condition
 
         // /* 아래와 같은 상황에서 왜 0이 아닌 이상한 값이 출력될까? */
@@ -265,8 +326,9 @@ namespace ServerCore
         //                 이를 atomic 이라고 한다. (원자성)
         //                 일련의 동작이 "한 번에" 일어나야 한다는 개념.
         //  */
+
         #endregion
-        
+
 
         #region 메모리 배리어. Memory Barrier
 
