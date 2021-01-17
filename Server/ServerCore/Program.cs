@@ -4,6 +4,8 @@ using System.Threading.Tasks;
 
 namespace ServerCore
 {
+    #region 멀티쓰레드 프로그래밍
+
     class Lock_AutoResetEvent
     {
         private AutoResetEvent _available = new AutoResetEvent(true);
@@ -108,33 +110,33 @@ namespace ServerCore
     {
         #region Thread Local Storage  "각각 지니고 다니는 쟁반!"
 
-        private static ThreadLocal<string> _threadName = new ThreadLocal<string>();
-        // ThreadLocal로 매핑해서, 한 쓰레드가 threadName을 건드려도 다른 쓰레드들의 threadName에 영향을 주지 않는다.
-
-        private static ThreadLocal<string> _threadName2 = 
-            new ThreadLocal<string>(() => $"My name is {Thread.CurrentThread.ManagedThreadId}");
-
-        static void WhoAmI()
-        {
-            _threadName.Value = $"My name is {Thread.CurrentThread.ManagedThreadId}";
-            Console.WriteLine(_threadName.Value);
-
-            // 또는
-
-            bool repeat = _threadName2.IsValueCreated;
-            if (repeat)
-                Console.WriteLine(_threadName2.Value + " (repeat)");
-            else
-                Console.WriteLine(_threadName2.Value);
-        }
-
-        static void Main(string[] args)
-        {
-            Parallel.Invoke(WhoAmI, WhoAmI, WhoAmI, WhoAmI, WhoAmI);
-            
-            _threadName.Dispose();
-        }
-
+        // private static ThreadLocal<string> _threadName = new ThreadLocal<string>();
+        // // ThreadLocal로 매핑해서, 한 쓰레드가 threadName을 건드려도 다른 쓰레드들의 threadName에 영향을 주지 않는다.
+        //
+        // private static ThreadLocal<string> _threadName2 = 
+        //     new ThreadLocal<string>(() => $"My name is {Thread.CurrentThread.ManagedThreadId}");
+        //
+        // static void WhoAmI()
+        // {
+        //     _threadName.Value = $"My name is {Thread.CurrentThread.ManagedThreadId}";
+        //     Console.WriteLine(_threadName.Value);
+        //
+        //     // 또는
+        //
+        //     bool repeat = _threadName2.IsValueCreated;
+        //     if (repeat)
+        //         Console.WriteLine(_threadName2.Value + " (repeat)");
+        //     else
+        //         Console.WriteLine(_threadName2.Value);
+        // }
+        //
+        // static void Main(string[] args)
+        // {
+        //     Parallel.Invoke(WhoAmI, WhoAmI, WhoAmI, WhoAmI, WhoAmI);
+        //     
+        //     _threadName.Dispose();
+        // }
+        //
         #endregion
         
 
@@ -566,4 +568,9 @@ namespace ServerCore
 
         #endregion
     }
+
+
+    #endregion
+    
+    
 }
