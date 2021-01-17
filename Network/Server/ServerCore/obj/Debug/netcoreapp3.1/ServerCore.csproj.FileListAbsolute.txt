@@ -1,0 +1,13 @@
+C:\Users\Bbo\Documents\ServerBasics\Network\Server\ServerCore\bin\Debug\netcoreapp3.1\ServerCore.exe
+C:\Users\Bbo\Documents\ServerBasics\Network\Server\ServerCore\bin\Debug\netcoreapp3.1\ServerCore.deps.json
+C:\Users\Bbo\Documents\ServerBasics\Network\Server\ServerCore\bin\Debug\netcoreapp3.1\ServerCore.runtimeconfig.json
+C:\Users\Bbo\Documents\ServerBasics\Network\Server\ServerCore\bin\Debug\netcoreapp3.1\ServerCore.runtimeconfig.dev.json
+C:\Users\Bbo\Documents\ServerBasics\Network\Server\ServerCore\bin\Debug\netcoreapp3.1\ServerCore.dll
+C:\Users\Bbo\Documents\ServerBasics\Network\Server\ServerCore\bin\Debug\netcoreapp3.1\ServerCore.pdb
+C:\Users\Bbo\Documents\ServerBasics\Network\Server\ServerCore\obj\Debug\netcoreapp3.1\ServerCore.csprojAssemblyReference.cache
+C:\Users\Bbo\Documents\ServerBasics\Network\Server\ServerCore\obj\Debug\netcoreapp3.1\ServerCore.AssemblyInfoInputs.cache
+C:\Users\Bbo\Documents\ServerBasics\Network\Server\ServerCore\obj\Debug\netcoreapp3.1\ServerCore.AssemblyInfo.cs
+C:\Users\Bbo\Documents\ServerBasics\Network\Server\ServerCore\obj\Debug\netcoreapp3.1\ServerCore.csproj.CoreCompileInputs.cache
+C:\Users\Bbo\Documents\ServerBasics\Network\Server\ServerCore\obj\Debug\netcoreapp3.1\ServerCore.dll
+C:\Users\Bbo\Documents\ServerBasics\Network\Server\ServerCore\obj\Debug\netcoreapp3.1\ServerCore.pdb
+C:\Users\Bbo\Documents\ServerBasics\Network\Server\ServerCore\obj\Debug\netcoreapp3.1\ServerCore.genruntimeconfig.cache
