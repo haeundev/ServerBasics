@@ -19,11 +19,14 @@ namespace ServerCore
             _listenSocket.Bind(endPoint);
 
             // 영업 시작
-            _listenSocket.Listen( /*문지기의 안내 전 최대 대기 수*/10);
+            _listenSocket.Listen( /* backlog: 문지기의 안내 전 최대 대기 수*/10);
 
-            SocketAsyncEventArgs args = new SocketAsyncEventArgs();
-            args.Completed += new EventHandler<SocketAsyncEventArgs>(OnAcceptCompleted);
-            RegisterAccept(args); // 여기서 바로 되면 되고 아님 말고. 위에서 이벤트로는 어떻게든 날아오니까.
+            for (int i = 0; i < 10; i++) // 유저가 많아질까봐 10개로...
+            {
+                SocketAsyncEventArgs args = new SocketAsyncEventArgs();
+                args.Completed += new EventHandler<SocketAsyncEventArgs>(OnAcceptCompleted);
+                RegisterAccept(args); // 여기서 바로 되면 되고 아님 말고. 위에서 이벤트로는 어떻게든 날아오니까.
+            }
         }
 
         // 밑의 두 함수가 뱅뱅 돌면서 자기들이 알아서 기다리고, 다시 등록하고.
@@ -36,6 +39,9 @@ namespace ServerCore
                 OnAcceptCompleted(null, args);
         }
 
+        // RED ZONE: race condition 이 일어날 수 있다. 염두에 두고 코딩해야 한다.
+        //           멀티쓰레드 상 일어날 수 있는 동기화 문제를 신경써야 한다.
+        //           Async 이므로...
         private void OnAcceptCompleted(object sender, SocketAsyncEventArgs args)
         {
             if (args.SocketError == SocketError.Success)

@@ -9,7 +9,7 @@ namespace ServerCore
     {
         private static Listener _listener = new Listener();
 
-        private static void OnAcceptHander(Socket clientSocket)
+        private static void OnAcceptHandler(Socket clientSocket)
         {
             try
             {
@@ -43,7 +43,7 @@ namespace ServerCore
             IPEndPoint endPoint = new IPEndPoint( /*주소*/ipAddr, /*문*/7777);
             
             // "문지기야, 우리의 endpoint는 이거고, 혹시 누가 들어오면 이 handler 로 알려줘."
-            _listener.Init(endPoint, OnAcceptHander);
+            _listener.Init(endPoint, OnAcceptHandler);
             Console.WriteLine("Listening ...");
 
             while (true)
