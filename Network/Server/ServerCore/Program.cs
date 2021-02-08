@@ -2,6 +2,7 @@
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
+using System.Threading;
 
 namespace ServerCore
 {
@@ -13,19 +14,16 @@ namespace ServerCore
         {
             try
             {
-                // 받기
-                byte[] recvBuff = new byte[1024];
-                int recvBytes = clientSocket.Receive(recvBuff); // 몇 바이트를 받아왔는가
-                string recvData = Encoding.UTF8.GetString(recvBuff, /*시작 인덱스*/0, recvBytes);
-                Console.WriteLine($"[From Client] {recvData}");
-
-                // 보내기
+                // 여기처럼 안 하고 pooling 방식을 사용할 수도 있음.
+                Session session = new Session();
+                session.Start(clientSocket);
+                
                 byte[] sendBuff = Encoding.UTF8.GetBytes("Welcome To Server!");
-                clientSocket.Send(sendBuff);
-
-                // 쫓아내기
-                clientSocket.Shutdown(SocketShutdown.Both);
-                clientSocket.Close();
+                session.Send(sendBuff);
+                
+                Thread.Sleep(1000);
+                
+                session.Disconnect();
             }
             catch (Exception e)
             {

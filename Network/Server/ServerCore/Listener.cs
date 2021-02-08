@@ -21,7 +21,7 @@ namespace ServerCore
             // 영업 시작
             _listenSocket.Listen( /* backlog: 문지기의 안내 전 최대 대기 수*/10);
 
-            for (int i = 0; i < 10; i++) // 유저가 많아질까봐 10개로...
+            //for (int i = 0; i < 10; i++) // 유저가 많아질까봐 10개로...
             {
                 SocketAsyncEventArgs args = new SocketAsyncEventArgs();
                 args.Completed += new EventHandler<SocketAsyncEventArgs>(OnAcceptCompleted);
